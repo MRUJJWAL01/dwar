@@ -4,10 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import SplashScreen from '../features/onboarding/screens/SplashScreen';
-import Onboarding1 from '../features/onboarding/screens/Onboarding1';
-import Onboarding2 from '../features/onboarding/screens/Onboarding2';
-import Onboarding3 from '../features/onboarding/screens/Onboarding3';
-import Onboarding4 from '../features/onboarding/screens/Onboarding4';
+import Onboarding1 from '../features/onboarding/screens/Onboarding';
+
 
 import Login from '../features/auth/screens/Login';
 import Signup from '../features/auth/screens/Signup';
@@ -21,14 +19,13 @@ import DeviceSetup4 from '../features/setup/screens/DeviceSetup4';
 import Permissions from '../features/setup/screens/Permissions';
 
 import MainTabs from './tabs/MainTabs';
+import Onboarding from '../features/onboarding/screens/Onboarding';
 
 export type RootStackParamList = {
   Splash: undefined;
 
-  Onboarding1: undefined;
-  Onboarding2: undefined;
-  Onboarding3: undefined;
-  Onboarding4: undefined;
+  Onboarding: undefined;
+ 
 
   Login: undefined;
   Signup: undefined;
@@ -57,10 +54,8 @@ export default function RootNavigator() {
         <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
           <Stack.Screen name="Splash" component={SplashScreen} />
 
-          <Stack.Screen name="Onboarding1" component={Onboarding1} />
-          <Stack.Screen name="Onboarding2" component={Onboarding2} />
-          <Stack.Screen name="Onboarding3" component={Onboarding3} />
-          <Stack.Screen name="Onboarding4" component={Onboarding4} />
+          <Stack.Screen name="Onboarding" component={Onboarding} />
+       
 
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Signup" component={Signup} />

@@ -35,9 +35,7 @@ function maskDestination(destination?: string, via?: 'phone' | 'email') {
   const digits = destination.replace(/\D/g, '');
   if (digits.length <= 4) return destination;
 
-  return `+${digits.slice(0, 2)} ${'*'.repeat(
-    Math.max(0, digits.length - 6),
-  )}${digits.slice(-4)}`;
+  return `+${digits.slice(0, 2)} ${digits.slice(2)}`;
 }
 
 export default function Otp({ navigation, route }: Props) {
@@ -174,32 +172,34 @@ export default function Otp({ navigation, route }: Props) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.topBar}>
-          <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
-            <Text style={styles.back}>{'‹'}</Text>
+          <Pressable
+            onPress={() => navigation.goBack()}
+            hitSlop={10}
+            style={styles.backBtn}
+          >
+            <Text style={styles.backIcon}>{'←'}</Text>
           </Pressable>
         </View>
 
         <View style={styles.container}>
-          <Text style={styles.title}>Verify Code</Text>
+          <Text style={styles.title}>Verify Your Account</Text>
 
           <Text style={styles.subtitle}>
             Enter the code we just sent to{'\n'}
-            <Text style={styles.dest}>{maskDestination(destination, via)}</Text>
+            <Text style={styles.phoneText}>{maskDestination(destination, via)}</Text>
           </Text>
 
-          <View style={{ height: 18 }} />
-
-          <OtpInput
-            length={4}
-            value={code}
-            onChange={v => {
-              setCode(v);
-              setErr(undefined);
-            }}
-            errorText={err}
-          />
-
-          <View style={{ height: 18 }} />
+          <View style={styles.otpWrap}>
+            <OtpInput
+              length={4}
+              value={code}
+              onChange={v => {
+                setCode(v);
+                setErr(undefined);
+              }}
+              errorText={err}
+            />
+          </View>
 
           <Pressable
             onPress={onVerify}
@@ -212,7 +212,7 @@ export default function Otp({ navigation, route }: Props) {
           </Pressable>
 
           <View style={styles.resendRow}>
-            <Text style={styles.resendText}>Didn’t get OTP </Text>
+            <Text style={styles.resendLabel}>Didn’t get OTP </Text>
 
             {canResend ? (
               <Pressable onPress={onResend}>
@@ -221,7 +221,7 @@ export default function Otp({ navigation, route }: Props) {
                 </Text>
               </Pressable>
             ) : (
-              <Text style={styles.timerText}>Resend in {secondsLeft}s</Text>
+              <Text style={styles.resendTimer}>Resend in {secondsLeft}s</Text>
             )}
           </View>
         </View>
@@ -231,56 +231,114 @@ export default function Otp({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#FFFFFF' },
+  safe: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
 
   topBar: {
-    height: 44,
-    paddingHorizontal: 12,
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    height: 64,
     justifyContent: 'center',
   },
-  back: {
-    fontSize: 28,
-    color: '#111827',
-    lineHeight: 28,
+
+  backBtn: {
+    width: 64,
+    backgroundColor: '#F1F1F1',
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  backIcon: {
+    fontSize: 40,
+    color: '#4B5563',
+    marginTop: -14,
   },
 
   container: {
     flex: 1,
-    paddingHorizontal: 18,
     alignItems: 'center',
-    paddingTop: 10,
+    paddingHorizontal: 28,
+    paddingTop: 70,
   },
 
-  title: { fontSize: 18, fontWeight: '800', color: '#111827' },
-  subtitle: {
-    marginTop: 8,
+  title: {
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '700',
+    color: '#000000',
     textAlign: 'center',
-    fontSize: 12,
-    lineHeight: 18,
-    color: '#6B7280',
+    letterSpacing: -0.5,
   },
-  dest: { fontWeight: '700', color: '#111827' },
+
+  subtitle: {
+    marginTop: 28,
+    fontSize: 17,
+    lineHeight: 30,
+    color: '#4B4B4B',
+    textAlign: 'center',
+    fontWeight: '400',
+  },
+
+  phoneText: {
+    fontSize: 18,
+    lineHeight: 32,
+    color: '#2F2F2F',
+    fontWeight: '500',
+  },
+
+  otpWrap: {
+    marginTop: 62,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 54,
+  },
 
   primaryBtn: {
-    width: '86%',
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: '#2563EB',
+    width: '100%',
+    height: 58,
+    borderRadius: 14,
+    backgroundColor: '#2F67E8',
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   primaryBtnDisabled: {
-    backgroundColor: '#9BB7F0',
+    backgroundColor: '#9BB6F5',
   },
-  primaryBtnText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
+
+  primaryBtnText: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    fontWeight: '500',
+  },
 
   resendRow: {
-    marginTop: 12,
+    marginTop: 26,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    flexWrap: 'wrap',
   },
-  resendText: { fontSize: 12, color: '#6B7280' },
-  resendLink: { fontSize: 12, color: '#2563EB', fontWeight: '700' },
-  timerText: { fontSize: 12, color: '#6B7280', fontWeight: '700' },
+
+  resendLabel: {
+    fontSize: 16,
+    color: '#2F2F2F',
+    fontWeight: '400',
+  },
+
+  resendLink: {
+    fontSize: 16,
+    color: '#3D73E3',
+    fontWeight: '500',
+  },
+
+  resendTimer: {
+    fontSize: 15,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
 });

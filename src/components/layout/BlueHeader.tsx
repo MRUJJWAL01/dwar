@@ -30,13 +30,13 @@ export default function BlueHeader({
       <StatusBar barStyle="light-content" backgroundColor="#2563EB" />
 
       <View style={styles.row}>
-        {onBackPress ? (
+        {/* {onBackPress ? (
           <Pressable onPress={onBackPress} hitSlop={10} style={styles.backBtn}>
             <Text style={styles.backText}>{'‹'}</Text>
           </Pressable>
         ) : (
           <View style={styles.backSpacer} />
-        )}
+        )} */}
 
         <View style={{ flex: 1 }}>
           <Text style={styles.title}>{title}</Text>
@@ -54,12 +54,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#2563EB',
     paddingHorizontal: 16,
     paddingTop: Platform.select({ ios: 10, android: 12 }),
-    paddingBottom: 12,
+    paddingBottom: 20,
   },
 
   // ✅ Bigger like your real screenshot
   headerLarge: {
-    paddingTop: Platform.select({ ios: 16, android: 18 }),
+    paddingTop: Platform.select({ ios: 78, android: 80 }),
     paddingBottom: 18,
   },
 
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   backText: { color: '#FFFFFF', fontSize: 32, lineHeight: 32, fontWeight: '900' },
   backSpacer: { width: 34, height: 34 },
 
-  title: { color: '#FFFFFF', fontSize: 22, fontWeight: '900' }, // ✅ bigger title like screenshot
+  title: { color: '#FFFFFF', fontSize: 32, fontWeight: '700' }, // ✅ bigger title like screenshot
   subtitle: { marginTop: 4, color: '#DBEAFE', fontSize: 12, fontWeight: '700' },
 
   right: { minWidth: 34, alignItems: 'flex-end' },

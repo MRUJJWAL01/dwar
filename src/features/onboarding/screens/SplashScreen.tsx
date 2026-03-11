@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image, StatusBar,Text } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../../navigation/RootNavigator';
 import { useAppDispatch } from '../../../store/hooks';
@@ -22,8 +22,8 @@ export default function SplashScreen({ navigation }: Props) {
       try {
         const onboardingCompleted = await getOnboardingCompleted();
 
-        if (!onboardingCompleted) {
-          navigation.replace('Onboarding1');
+        if (onboardingCompleted) {
+          navigation.replace('Onboarding');
           return;
         }
 
@@ -66,7 +66,13 @@ export default function SplashScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.brand}>Dvaari</Text>
+      <StatusBar barStyle="light-content" backgroundColor="#2F67E8" />
+
+      <Image
+        source={require('../../../assets/images/dwaari-logo.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
     </View>
   );
 }
@@ -74,13 +80,13 @@ export default function SplashScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2563EB',
+    backgroundColor: '#2F67E8',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  brand: {
-    color: '#FFFFFF',
-    fontSize: 32,
-    fontWeight: '900',
+  logo: {
+    width: 158,
+    height: 48,
   },
+  brand: { color: '#FFFFFF', fontSize: 32, fontWeight: '900', },
 });

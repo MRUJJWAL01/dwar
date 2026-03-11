@@ -131,5 +131,5 @@ const styles = StyleSheet.create({
     borderColor: '#2563EB',
   },
 
-  error: { marginTop: 10, color: '#DC2626', fontSize: 12, fontWeight: '600' },
+  error: { marginTop: 10, color: '#EA8080', fontSize: 12, fontWeight: '600' },
 });

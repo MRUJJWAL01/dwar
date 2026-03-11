@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  error: { marginTop: 10, color: '#DC2626', fontSize: 12, fontWeight: '700' },
+  error: { marginTop: 10, color: '#EA8080', fontSize: 12, fontWeight: '700' },
 
   primaryBtn: {
     marginTop: 14,
