@@ -8,56 +8,74 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../../navigation/RootNavigator';
+
 import OtpInput from '../../../components/ui/OtpInput';
+
 import {
   useDeviceRegistrationVerifyOtpMutation,
   useResendOtpMutation,
   useVerifyOtpMutation,
 } from '../../../services/api/authApi';
+
 import { useAppDispatch } from '../../../store/hooks';
 import { authActions } from '../../../store/slices/authSlice';
 import { setTokens } from '../../../services/storage/tokenStorage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
-function maskDestination(destination?: string, via?: 'phone' | 'email') {
+function maskDestination(destination?: string) {
   if (!destination) return '';
 
-  if (via === 'email' || destination.includes('@')) {
-    const [u, d] = destination.split('@');
-    const maskedU = u.length <= 2 ? `${u[0]}*` : `${u.slice(0, 2)}***`;
-    return `${maskedU}@${d}`;
+  // EMAIL CASE
+  if (destination.includes('@')) {
+    const [user, domain] = destination.split('@');
+    console.log(destination);
+    
+
+    if (!user) return destination;
+
+    const maskedUser =
+      user.length <= 2
+        ? user[0] + '*'
+        : user.slice(0, 2) + '*'.repeat(user.length - 2);
+
+    return `${maskedUser}@${domain}`;
   }
 
+  // PHONE CASE
   const digits = destination.replace(/\D/g, '');
-  if (digits.length <= 4) return destination;
 
-  return `+${digits.slice(0, 2)} ${digits.slice(2)}`;
+  if (digits.length < 6) return destination;
+
+  const country = digits.slice(0, 2);
+  const rest = digits.slice(2);
+
+  return `+${country} ${rest}`;
 }
 
 export default function Otp({ navigation, route }: Props) {
   const dispatch = useAppDispatch();
 
   const destination = route.params?.destination ?? '';
-  const via =
-    route.params?.via ?? (destination.includes('@') ? 'email' : 'phone');
   const flow = route.params?.flow ?? 'login';
 
+  const isSignupFlow = flow === 'signup';
+
   const [code, setCode] = useState('');
-  const [err, setErr] = useState<string | undefined>(undefined);
+  const [err, setErr] = useState<string | undefined>();
   const [secondsLeft, setSecondsLeft] = useState(30);
 
-  const [verifyLoginOtp, { isLoading: isLoginVerifying }] =
-    useVerifyOtpMutation();
-  const [verifySignupOtp, { isLoading: isSignupVerifying }] =
-    useDeviceRegistrationVerifyOtpMutation();
-  const [resendOtp, { isLoading: isResending }] = useResendOtpMutation();
+  const [verifyLoginOtp, { isLoading: loginLoading }] = useVerifyOtpMutation();
 
-  const verifying = isLoginVerifying || isSignupVerifying;
-  const loading = verifying || isResending;
+  const [verifySignupOtp, { isLoading: signupLoading }] =
+    useDeviceRegistrationVerifyOtpMutation();
+
+  const [resendOtp, { isLoading: resendLoading }] = useResendOtpMutation();
+
+  const verifying = loginLoading || signupLoading;
 
   useEffect(() => {
     setSecondsLeft(30);
@@ -69,45 +87,20 @@ export default function Otp({ navigation, route }: Props) {
     return () => clearInterval(t);
   }, [secondsLeft]);
 
-  const canSubmit = useMemo(
-    () => code.length === 4 && !verifying,
-    [code, verifying],
-  );
-
-  const canResend = useMemo(
-    () => secondsLeft <= 0 && !loading,
-    [secondsLeft, loading],
-  );
+  const canSubmit = code.length === 4 && !verifying;
 
   const onVerify = async () => {
     setErr(undefined);
 
-    if (!canSubmit) return;
-    if (!destination) {
-      setErr('Missing identifier. Please try again.');
-      return;
-    }
-
     try {
-      const payload = {
-        identifier: destination,
-        code,
-      };
+      const payload = { identifier: destination, code };
+      console.log(payload);
+      
 
       const response =
         flow === 'signup'
           ? await verifySignupOtp(payload).unwrap()
           : await verifyLoginOtp(payload).unwrap();
-
-      if (
-        !response?.ok ||
-        !response.accessToken ||
-        !response.refreshToken ||
-        !response.user
-      ) {
-        setErr('Verification failed. Please try again.');
-        return;
-      }
 
       await setTokens(response.accessToken, response.refreshToken);
 
@@ -119,51 +112,26 @@ export default function Otp({ navigation, route }: Props) {
         }),
       );
 
-      if (flow === 'signup') {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'AccountVerified' }],
-        });
-      } else {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'MainTabs' }],
-        });
-      }
+      navigation.reset({
+        index: 0,
+        routes: [{ name: flow === 'signup' ? 'AccountVerified' : 'MainTabs' }],
+      });
     } catch (e: any) {
-      const apiMessage =
-        e?.data?.message || e?.error || 'Invalid OTP. Please try again.';
-      setErr(apiMessage);
+      setErr(e?.data?.message || 'Invalid OTP');
     }
   };
 
   const onResend = async () => {
-    if (!canResend) return;
-    if (!destination) {
-      setErr('Missing identifier. Please try again.');
-      return;
-    }
-
-    setErr(undefined);
-
     try {
-      const response = await resendOtp({ identifier: destination }).unwrap();
-
-      if (!response?.ok) {
-        setErr('Could not resend OTP. Please try again.');
-        return;
-      }
-
-      setCode('');
+      await resendOtp({ identifier: destination }).unwrap();
       setSecondsLeft(30);
-    } catch (e: any) {
-      const apiMessage =
-        e?.data?.message ||
-        e?.error ||
-        'Could not resend OTP. Please try again.';
-      setErr(apiMessage);
+      setCode('');
+    } catch {
+      setErr('Could not resend OTP');
     }
   };
+
+  const title = isSignupFlow ? 'Verify Your Account' : 'verify code';
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -172,21 +140,19 @@ export default function Otp({ navigation, route }: Props) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.topBar}>
-          <Pressable
-            onPress={() => navigation.goBack()}
-            hitSlop={10}
-            style={styles.backBtn}
-          >
-            <Text style={styles.backIcon}>{'←'}</Text>
+          <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Text style={styles.backIcon}>←</Text>
           </Pressable>
         </View>
 
         <View style={styles.container}>
-          <Text style={styles.title}>Verify Your Account</Text>
+          <Text style={[styles.title, isSignupFlow && styles.signupTitle]}>
+            {title}
+          </Text>
 
           <Text style={styles.subtitle}>
             Enter the code we just sent to{'\n'}
-            <Text style={styles.phoneText}>{maskDestination(destination, via)}</Text>
+            <Text style={styles.phoneText}>{maskDestination(destination)}</Text>
           </Text>
 
           <View style={styles.otpWrap}>
@@ -198,13 +164,14 @@ export default function Otp({ navigation, route }: Props) {
                 setErr(undefined);
               }}
               errorText={err}
+              activeColor={isSignupFlow ? '#2362EB' : '#2362EB'}
             />
           </View>
 
           <Pressable
             onPress={onVerify}
-            style={[styles.primaryBtn, !canSubmit && styles.primaryBtnDisabled]}
             disabled={!canSubmit}
+            style={[styles.primaryBtn, !canSubmit && styles.primaryBtnDisabled]}
           >
             <Text style={styles.primaryBtnText}>
               {verifying ? 'Please wait...' : 'Enter Verification Code'}
@@ -214,10 +181,10 @@ export default function Otp({ navigation, route }: Props) {
           <View style={styles.resendRow}>
             <Text style={styles.resendLabel}>Didn’t get OTP </Text>
 
-            {canResend ? (
+            {secondsLeft === 0 ? (
               <Pressable onPress={onResend}>
                 <Text style={styles.resendLink}>
-                  {isResending ? 'Sending...' : 'Resend code'}
+                  {resendLoading ? 'Sending...' : 'Resend code'}
                 </Text>
               </Pressable>
             ) : (
@@ -238,107 +205,117 @@ const styles = StyleSheet.create({
 
   topBar: {
     paddingHorizontal: 20,
-    paddingTop: 50,
-    height: 64,
-    justifyContent: 'center',
+    paddingTop: 40,
   },
 
   backBtn: {
-    width: 64,
-    backgroundColor: '#F1F1F1',
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3F4F6',
+    //   
   },
 
   backIcon: {
-    fontSize: 40,
-    color: '#4B5563',
-    marginTop: -14,
+    fontSize: 24,
+    color: '#666666',
+    textAlign:'center',
+    paddingTop:1/2
   },
 
   container: {
     flex: 1,
-    alignItems: 'center',
-    paddingHorizontal: 28,
-    paddingTop: 70,
+    paddingHorizontal: 67,
+    paddingTop: 60,
   },
 
   title: {
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: '700',
-    color: '#000000',
+    fontSize: 24,
+    lineHeight: 24,
     textAlign: 'center',
-    letterSpacing: -0.5,
+    fontWeight: '500',
+    color: '#111827',
+  },
+
+  signupTitle: {
+    fontSize: 24,
+    lineHeight: 24,
+    textAlign: 'center',
+    fontWeight: '500',
+    color: '#111827',
   },
 
   subtitle: {
-    marginTop: 28,
-    fontSize: 17,
-    lineHeight: 30,
-    color: '#4B4B4B',
-    textAlign: 'center',
+    marginTop: 11,
+    fontSize: 16,
+    lineHeight: 26,
     fontWeight: '400',
+    textAlign: 'center',
+    color: '#333333',
   },
 
   phoneText: {
-    fontSize: 18,
-    lineHeight: 32,
-    color: '#2F2F2F',
-    fontWeight: '500',
+    color: '#333333',
+    textAlign: 'center',
+    fontWeight: '400',
+    fontSize: 16,
+    lineHeight: 26,
   },
 
   otpWrap: {
-    marginTop: 62,
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 54,
+    marginTop: 38,
+    marginBottom: 41,
+
   },
+ 
 
   primaryBtn: {
-    width: '100%',
-    height: 58,
-    borderRadius: 14,
-    backgroundColor: '#2F67E8',
+    width: 256,
+    height: 44,
+    paddingVertical:10,
+    paddingHorizontal:12,
+    borderRadius: 8,
+    backgroundColor: '#2362EB',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   primaryBtnDisabled: {
-    backgroundColor: '#9BB6F5',
+    backgroundColor: '#81A5F3',
   },
 
   primaryBtnText: {
     color: '#FFFFFF',
-    fontSize: 17,
+    fontSize: 16,
+    lineHeight:24,
+    letterSpacing:-0.5,
     fontWeight: '500',
   },
 
   resendRow: {
-    marginTop: 26,
+    marginTop: 12,
+    
     flexDirection: 'row',
-    alignItems: 'center',
+     alignItems: 'center',
     justifyContent: 'center',
-    flexWrap: 'wrap',
   },
 
   resendLabel: {
-    fontSize: 16,
-    color: '#2F2F2F',
-    fontWeight: '400',
+    fontSize: 14,
+    
+    color: '#1F1F1F',
   },
 
   resendLink: {
-    fontSize: 16,
-    color: '#3D73E3',
-    fontWeight: '500',
+    
+    fontSize: 14,
+    color: '#2362EB',
+    fontWeight: '600',
   },
 
   resendTimer: {
-    fontSize: 15,
-    color: '#6B7280',
-    fontWeight: '500',
+    fontSize: 14,
+    lineHeight:14,
+    color: '#9CA3AF',
   },
 });

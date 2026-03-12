@@ -12,6 +12,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import type { HomeStackParamList } from '../../../navigation/tabs/stacks/HomeStack';
 
+
 type Props = NativeStackScreenProps<HomeStackParamList, 'Home'>;
 
 type Activity = {
@@ -23,6 +24,7 @@ type Activity = {
 };
 
 export default function Home({ navigation }: Props) {
+  const rootNavigation = navigation.getParent();
   const [mode, setMode] = useState<'active' | 'away'>('active');
   const [visitorPending, setVisitorPending] = useState(true);
 
@@ -46,7 +48,7 @@ export default function Home({ navigation }: Props) {
     []
   );
 
-  const onPressLiveFeed = () => navigation.navigate('LiveFeed');
+  // const onPressLiveFeed = () => navigation.navigate('LiveFeed');
 
   const onApprove = () => {
     // mock action: mark pending false
@@ -68,15 +70,17 @@ export default function Home({ navigation }: Props) {
     navigation.getParent()?.navigate('DeliveryStack' as never);
   };
 
-  const goSecurity = () => {
-    // later: security stack screen
-    navigation.getParent()?.navigate('HomeStack' as never);
-  };
+const goSecurity = () => {
+  rootNavigation?.navigate('SecurityAccessControl' as never);
+};
 
-  const goRecordings = () => {
-    // later: recordings screen inside HomeStack or another tab
-    navigation.getParent()?.navigate('HomeStack' as never);
-  };
+const goRecordings = () => {
+  rootNavigation?.navigate('DeliveryRecordings' as never);
+};
+
+const goLiveFeed = () => {
+  rootNavigation?.navigate('LiveFeed' as never);
+};
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -123,7 +127,7 @@ export default function Home({ navigation }: Props) {
 
         <Text style={styles.sectionTitle}>Live Feed</Text>
 
-        <Pressable style={styles.liveRow} onPress={onPressLiveFeed}>
+        <Pressable style={styles.liveRow} onPress={goLiveFeed}>
           <View style={styles.liveIcon} />
           <Text style={styles.liveText}>Live Feed</Text>
           <Text style={styles.chev}>{'›'}</Text>

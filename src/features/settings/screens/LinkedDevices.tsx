@@ -100,7 +100,12 @@ export default function LinkedDevices({ navigation }: Props) {
 
         <Pressable
           style={styles.primaryBtn}
-          onPress={() => navigation.navigate('DeviceSetup1')}
+          onPress={() =>
+            navigation.navigate('DeviceSetup', {
+              type: 'device',
+              from: 'settings',
+            })
+          }
         >
           <Text style={styles.primaryText}>＋ Link Device</Text>
         </Pressable>
@@ -127,7 +132,12 @@ export default function LinkedDevices({ navigation }: Props) {
 
         <Pressable
           style={styles.successBtn}
-          onPress={() => navigation.navigate('DeviceSetup1')}
+          onPress={() =>
+            navigation.navigate('DeviceSetup', {
+              type: 'box',
+              from: 'settings',
+            })
+          }
         >
           <Text style={styles.successText}>＋ Link Dvaari Box</Text>
         </Pressable>

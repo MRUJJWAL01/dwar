@@ -1,20 +1,25 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, StatusBar, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  StatusBar,
+  Platform,
+  Image,
+} from 'react-native';
 
 type Props = {
   title: string;
-
-  // optional back
-  onBackPress?: () => void;
-
-  // optional subtitle
   subtitle?: string;
-
-  // optional right action
+  onBackPress?: () => void;
   right?: React.ReactNode;
 
-  // optional: bigger header (default true as per your screenshots)
+  // existing behavior
   large?: boolean;
+
+  // new: use for detail screens like recordings/security
+  compact?: boolean;
 };
 
 export default function BlueHeader({
@@ -23,27 +28,56 @@ export default function BlueHeader({
   onBackPress,
   right,
   large = true,
+  compact = false,
 }: Props) {
+  const useLarge = large && !compact;
+
   return (
-    <View style={[styles.header, large && styles.headerLarge]}>
-      {/* match screenshot feel */}
+    <View
+      style={[
+        styles.header,
+        useLarge ? styles.headerLarge : styles.headerCompact,
+      ]}
+    >
       <StatusBar barStyle="light-content" backgroundColor="#2563EB" />
 
       <View style={styles.row}>
-        {/* {onBackPress ? (
+        {onBackPress ? (
           <Pressable onPress={onBackPress} hitSlop={10} style={styles.backBtn}>
-            <Text style={styles.backText}>{'‹'}</Text>
+            <Image
+              source={require('../../assets/icons/recordings/backButton.png')}
+              style={styles.backIcon}
+              resizeMode="contain"
+            />
           </Pressable>
         ) : (
           <View style={styles.backSpacer} />
-        )} */}
+        )}
 
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{title}</Text>
-          {!!subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+        <View style={styles.center}>
+          <Text
+            numberOfLines={1}
+            style={[
+              styles.title,
+              compact ? styles.titleCompact : styles.titleLarge,
+            ]}
+          >
+            {title}
+          </Text>
+
+          {!!subtitle && (
+            <Text
+              numberOfLines={2}
+              style={[styles.subtitle, compact && styles.subtitleCompact]}
+            >
+              {subtitle}
+            </Text>
+          )}
         </View>
 
-        <View style={styles.right}>{right ?? <View style={styles.backSpacer} />}</View>
+        <View style={styles.right}>
+          {right ?? <View style={styles.backSpacer} />}
+        </View>
       </View>
     </View>
   );
@@ -53,30 +87,81 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#2563EB',
     paddingHorizontal: 16,
-    paddingTop: Platform.select({ ios: 10, android: 12 }),
-    paddingBottom: 20,
   },
 
-  // ✅ Bigger like your real screenshot
+  // existing big header screens
   headerLarge: {
     paddingTop: Platform.select({ ios: 78, android: 80 }),
     paddingBottom: 18,
   },
 
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  // detail screens with back button
+  headerCompact: {
+    paddingTop: Platform.select({ ios: 52, android: 50 }),
+    paddingBottom: 14,
+  },
+
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 
   backBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  backText: { color: '#FFFFFF', fontSize: 32, lineHeight: 32, fontWeight: '900' },
-  backSpacer: { width: 34, height: 34 },
 
-  title: { color: '#FFFFFF', fontSize: 32, fontWeight: '700' }, // ✅ bigger title like screenshot
-  subtitle: { marginTop: 4, color: '#DBEAFE', fontSize: 12, fontWeight: '700' },
+  backIcon: {
+    width: 22,
+    height: 22,
+  },
 
-  right: { minWidth: 34, alignItems: 'flex-end' },
+  backTextCompact: {
+    fontSize: 26,
+    lineHeight: 26,
+  },
+
+  backSpacer: {
+    width: 45,
+    height: 45,
+  },
+
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+
+  title: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+
+  titleLarge: {
+    fontSize: 32,
+  },
+
+  titleCompact: {
+    fontSize: 18,
+    lineHeight: 22,
+  },
+
+  subtitle: {
+    marginTop: 4,
+    color: '#DBEAFE',
+    fontWeight: '700',
+  },
+
+  subtitleCompact: {
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '600',
+  },
+
+  right: {
+    minWidth: 45,
+    alignItems: 'flex-end',
+    marginLeft: 10,
+  },
 });

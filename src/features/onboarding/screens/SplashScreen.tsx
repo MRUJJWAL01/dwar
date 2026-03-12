@@ -22,7 +22,7 @@ export default function SplashScreen({ navigation }: Props) {
       try {
         const onboardingCompleted = await getOnboardingCompleted();
 
-        if (onboardingCompleted) {
+        if (!onboardingCompleted) {
           navigation.replace('Onboarding');
           return;
         }

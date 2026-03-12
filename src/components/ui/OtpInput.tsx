@@ -114,21 +114,23 @@ export default function OtpInput({
 
 const styles = StyleSheet.create({
   wrap: { width: '100%', alignItems: 'center' },
-  row: { flexDirection: 'row', gap: 10, justifyContent: 'center' },
+  row: { flexDirection: 'row', gap: 16, justifyContent: 'center' },
 
   box: {
-    width: 46,
-    height: 46,
-    borderRadius: 10,
-    borderWidth: 1,
+    width: 52,
+    height: 52,
+    borderRadius: 6.5,
+    borderWidth: 1.5,
     borderColor: '#D1D5DB',
     backgroundColor: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#111827',
+    fontSize: 30,
+    letterSpacing:-2,
+    lineHeight:30,
+    fontWeight: '500',
+    color: '#2362EB',
   },
   boxFilled: {
-    borderColor: '#2563EB',
+    borderColor: '#2362EB',
   },
 
   error: { marginTop: 10, color: '#EA8080', fontSize: 12, fontWeight: '600' },

@@ -4,15 +4,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SettingsHome from '../../../features/settings/screens/SettingsHome';
 import EditProfile from '../../../features/settings/screens/EditProfile';
 import LinkedDevices from '../../../features/settings/screens/LinkedDevices';
-import DeviceSetup1 from '../../../features/setup/screens/DeviceSetup1';
-import DeviceSetup3 from '../../../features/setup/screens/DeviceSetup3';
+import DeviceSetup from '../../../features/setup/screens/DeviceSetup';
 
 export type SettingsStackParamList = {
   SettingsHome: undefined;
   EditProfile: undefined;
   LinkedDevices: undefined;
-  DeviceSetup1: undefined;
-  DeviceSetup3: undefined;
+  DeviceSetup: {
+    type: 'device' | 'box';
+  };
 };
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -32,8 +32,7 @@ export default function SettingsStack() {
       />
       <Stack.Screen name="LinkedDevices" component={LinkedDevices} />
       {/* ✅ linking flows */}
-      <Stack.Screen name="DeviceSetup1" component={DeviceSetup1} />
-      <Stack.Screen name="DeviceSetup3" component={DeviceSetup3} />
+      <Stack.Screen name="DeviceSetup" component={DeviceSetup} />
     </Stack.Navigator>
   );
 }

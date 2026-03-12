@@ -85,7 +85,7 @@ export default function Login({ navigation }: Props) {
       // }
 
       // max length of +91 + 10 digits = 13 chars
-      next = next.slice(0, 14);
+      next = next.slice(0, 13);
     }
 
     setValue(next);

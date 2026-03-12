@@ -17,7 +17,7 @@ export const onboardingData = [
 {
  id:3,
  title:"Family Connected",
- description:"Everyone in your household stays in the loop. Manage access seamlessly.",
+ description:"Everyone in your household stays in the loop. Manage access, track deliveries, and coordinate seamlessly.",
  image:require("../../../assets/images/onboarding/onboarding3.jpg")
 },
 

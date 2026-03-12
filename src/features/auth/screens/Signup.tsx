@@ -172,16 +172,14 @@ export default function Signup({ navigation }: Props) {
           showsVerticalScrollIndicator={false}
         >
           <ImageBackground
-                   source={require('../../../assets/images/auth/bg.png')}
-                   style={styles.topSection}
-                 
-                 >
+            source={require('../../../assets/images/auth/bg.png')}
+            style={styles.topSection}
+          >
             <Text style={styles.headerTitle}>Create Account</Text>
             <Text style={styles.headerSub}>
               Register your account today using a{'\n'}valid email or mobile
             </Text>
-        </ImageBackground>
-              
+          </ImageBackground>
 
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Device Registration</Text>
@@ -213,7 +211,7 @@ export default function Signup({ navigation }: Props) {
                 onChangeText={handleEmailChange}
                 onFocus={() => setEmailTouched(true)}
                 onBlur={() => setEmailTouched(true)}
-                placeholder="Enter your email"
+                placeholder="Enter your email address"
                 placeholderTextColor="#666666"
                 style={styles.input}
                 autoCapitalize="none"
@@ -234,7 +232,7 @@ export default function Signup({ navigation }: Props) {
                 onFocus={() => {
                   setPhoneTouched(true);
                   if (phone === '+91') {
-                    setPhone('+91 ');
+                    setPhone('+91');
                   }
                 }}
                 onBlur={() => setPhoneTouched(true)}
@@ -250,11 +248,11 @@ export default function Signup({ navigation }: Props) {
                 returnKeyType="done"
                 maxLength={14}
               />
-              {/* {phoneTouched && cleanedPhone.length > 0 && !phoneOk && (
+              {phoneTouched && cleanedPhone.length > 3 && !phoneOk && (
                 <Text style={styles.errorText}>
                   Phone number must have 10 digits.
                 </Text>
-              )} */}
+              )}
 
               {!!error && <Text style={styles.errorText}>{error}</Text>}
             </View>
@@ -339,10 +337,10 @@ const styles = StyleSheet.create({
 
   cardTitle: {
     fontSize: 24,
-    lineHeight:24,
+    lineHeight: 24,
     fontWeight: '500',
     color: '#111111',
-    marginBottom:32
+    marginBottom: 32,
   },
 
   formBlock: {
@@ -351,16 +349,16 @@ const styles = StyleSheet.create({
 
   label: {
     fontSize: 16,
-    lineHeight:24,
-    letterSpacing:0.4,
+    lineHeight: 24,
+    letterSpacing: 0.4,
     color: '#111111',
     fontWeight: '600',
-    marginBottom:8,
+    marginBottom: 8,
   },
 
   input: {
     height: 44,
-    width:350,
+    width: 350,
     borderRadius: 8,
     borderWidth: 1,
     paddingHorizontal: 16,
@@ -382,10 +380,11 @@ const styles = StyleSheet.create({
   },
 
   primaryBtn: {
-    marginTop:40,
-    width:350,
+    marginTop: 40,
+    width: 350,
     height: 48,
     padding: 12,
+    borderRadius:8,
     backgroundColor: '#2362EB',
     alignItems: 'center',
     justifyContent: 'center',
@@ -398,15 +397,15 @@ const styles = StyleSheet.create({
   primaryBtnText: {
     color: '#FFFFFF',
     fontSize: 16,
-    lineHeight:24,
-    letterSpacing:-0.5,
+    lineHeight: 24,
+    letterSpacing: -0.5,
     fontWeight: '500',
   },
 
   footerRow: {
     marginTop: 16,
-    fontSize:16,
-    lineHeight:16,
+    fontSize: 16,
+    lineHeight: 16,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -421,7 +420,7 @@ const styles = StyleSheet.create({
   footerLink: {
     color: '#184FBF',
     fontSize: 16,
-    lineHeight:16,
+    lineHeight: 16,
     fontWeight: '500',
   },
 });
